@@ -779,6 +779,7 @@ public:
     Number mode_number() const override { return Number::CIRCLE; }
 
     bool init(bool ignore_checks) override;
+    void exit() override;
     void run() override;
 
     bool requires_GPS() const override { return true; }
@@ -798,6 +799,11 @@ private:
 
     // Circle
     bool speed_changing = false;     // true when the roll stick is being held to facilitate stopping at 0 rate
+    
+#if HAL_MOUNT_ENABLED
+    enum MAV_MOUNT_MODE previous_mount_mode = MAV_MOUNT_MODE::MAV_MOUNT_MODE_RETRACT;
+#endif
+
 };
 
 

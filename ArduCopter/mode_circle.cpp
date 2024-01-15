@@ -29,6 +29,8 @@ bool ModeCircle::init(bool ignore_checks)
         Vector3p loc = copter.circle_nav->get_center();
         loc.z = 0;
         Location circle_center(loc, Location::AltFrame::ABOVE_TERRAIN);
+        // Save previous mount mode
+        previous_mount_mode = s->get_mode();
         s->set_roi_target(circle_center);
     }
 #endif
@@ -119,6 +121,21 @@ void ModeCircle::run()
 
     // call attitude controller with auto yaw
     attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), auto_yaw.get_heading());
+}
+
+void ModeCircle::exit()
+{
+    // Reset mount to default mode
+#if HAL_MOUNT_ENABLED
+    AP_Mount *s = AP_Mount::get_singleton();
+
+    // Check if the CIRCLE_OPTIONS parameter have roi_at_center
+    if (copter.circle_nav->roi_at_center()) {
+        // Restore previous mount mode
+        s->set_mode(previous_mount_mode);
+    }
+#endif
+
 }
 
 uint32_t ModeCircle::wp_distance() const
